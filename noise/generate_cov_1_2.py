@@ -1,10 +1,9 @@
 # This file is to generate the matrix for generating colored noise.
 import numpy as np
 from numpy import linalg as la
-import struct
 
 
-eta = 0.5
+eta = 0.8
 N = 576
 cov = np.zeros((N, N))
 for i in range(N):
