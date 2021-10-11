@@ -18,9 +18,13 @@ import Iterative_BP_CNN as ibd
 import ConvNet
 import DataIO
 
+print("MAIN FILE AFTER EVERY IMPORT\n")
+
 # address configurations
 top_config = Configuration.TopConfig()
 top_config.parse_cmd_line(sys.argv)
+
+print("After parsing cmd line\n")
 
 train_config = Configuration.TrainingConfig(top_config)
 net_config = Configuration.NetConfig(top_config)
@@ -28,6 +32,7 @@ net_config = Configuration.NetConfig(top_config)
 code = lbc.LDPC(top_config.N_code, top_config.K_code,
                 top_config.file_G, top_config.file_H)
 
+print(f"top_config.function = {top_config.function}\n")
 if top_config.function == 'GenData':
     noise_io = DataIO.NoiseIO(top_config.N_code, False,
                               None, top_config.cov_1_2_file)
@@ -38,6 +43,7 @@ if top_config.function == 'GenData':
     ibd.generate_noise_samples(code, top_config, net_config, train_config, top_config.BP_iter_nums_gen_data,
                                top_config.currently_trained_net_id, 'Test', noise_io, top_config.model_id)
 elif top_config.function == 'Train':
+    print("INSIDE TRAIN!\n")
     net_id = top_config.currently_trained_net_id
     conv_net = ConvNet.ConvNet(net_config, train_config, net_id)
     conv_net.train_network(top_config.model_id)
