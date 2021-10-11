@@ -33,12 +33,14 @@ class ConvNet:
         Builds a network similar with SRCNN, a fully-convolutional netowrk for channel noise estimation
         '''
         # built_for_train: denote whether the network is build for training or test. If for test, xavier initialization is not needed since the model will be loaded later.
+        print("BUILD NETWORK\n")
         x_in = tf.placeholder(
             tf.float32, [None, self.net_config.feature_length])  # input data
         x_in_reshape = tf.reshape(
             x_in, (-1, self.net_config.feature_length, 1, 1))
         layer_output = {}
 
+        print("BEFORE LAYERS\n")
         for layer in tqdm(range(self.net_config.total_layers), desc="Layer"):  # construct layers
             self.conv_filter_name[layer] = format("conv_layer%d" % (layer))
             self.bias_name[layer] = f"b{layer}"
@@ -83,6 +85,7 @@ class ConvNet:
         y_out = layer_output[self.net_config.total_layers - 1]
         y_out = tf.reshape(y_out, (-1, self.net_config.label_length))
 
+        print("END BUILD NETWORK\n")
         return x_in, y_out
 
     def restore_network_with_model_id(self, sess_in, restore_layers_in, model_id):
@@ -126,6 +129,7 @@ class ConvNet:
         # model(a_b_c) means the 3rd network model indexed by c is trained based on the 1st network model indexed by a and the 2nd network model indexed by b. a,b,
         # c could be the same.
 
+        print("SAVING!!!\n")
         if not os.path.exists(save_model_folder):
             os.makedirs(save_model_folder)
         save_model_name = f"{save_model_folder}/model.ckpt"
@@ -141,6 +145,8 @@ class ConvNet:
         load_batch_size = self.train_config.test_minibatch_size
         avg_loss_after_train = 0.0
         avg_org_loss = 0.0
+
+        print("TEST NETWORK ONLINE\n")
         while remain_samples > 0:
             if remain_samples < self.train_config.test_minibatch_size:
                 load_batch_size = remain_samples
@@ -157,6 +163,8 @@ class ConvNet:
             remain_samples -= load_batch_size
             avg_loss_after_train += loss_after_training_value * load_batch_size
 
+
+        print("TEST AFTER WHILE")
         if calc_org_loss:
             avg_org_loss /= np.double(self.train_config.test_sample_num)
         avg_loss_after_train /= np.double(self.train_config.test_sample_num)
@@ -189,6 +197,7 @@ class ConvNet:
         return norm_test
 
     def train_network(self, model_id):
+        print("ENTERED TRAIN!\n")
         start = datetime.datetime.now()
         dataio = DataIO.TrainingDataIO(self.train_config.training_feature_file, self.train_config.training_label_file,
                                        self.train_config.training_sample_num, self.net_config.feature_length,
@@ -224,6 +233,7 @@ class ConvNet:
             orig_loss_for_test = tf.reduce_mean(tf.square(y_label - x_in))
             test_loss = training_loss
 
+        print("BEFORE TRAIN STEP")
         # SGD_Adam
         train_step = tf.train.AdamOptimizer().minimize(training_loss)
 
@@ -251,8 +261,11 @@ class ConvNet:
             epoch += 1
             batch_xs, batch_ys = dataio.load_next_mini_batch(
                 self.train_config.training_minibatch_size)
+            print("Loaded")
             sess.run([train_step], feed_dict={
                      x_in: batch_xs, y_label: batch_ys})
+            print("Ran")
+
             if epoch % 500 == 0 or epoch == self.train_config.epoch_num:
                 print(epoch)
                 ave_loss_after_train, _ = self.test_network_online(
