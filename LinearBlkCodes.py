@@ -1,7 +1,10 @@
 import numpy as np
 
-# Generate some random bits, encode it to valid codewords and simulate transmission
+
 def encode_and_transmission(G_matrix, SNR, batch_size, noise_io, rng=0):
+    '''
+    Generate some random bits, encode it to valid codewords and simulate transmission
+    '''
     K, N = np.shape(G_matrix)
     if rng == 0:
         x_bits = np.random.randint(0, 2, size=(batch_size, K))
@@ -21,6 +24,7 @@ def encode_and_transmission(G_matrix, SNR, batch_size, noise_io, rng=0):
     LLR = y_receive * 2.0 / (ch_noise_sigma * ch_noise_sigma)
     return x_bits, u_coded_bits, s_mod, ch_noise, y_receive, LLR
 
+
 class LDPC:
     def __init__(self, N, K, file_G, file_H):
         self.N = N
@@ -37,5 +41,4 @@ class LDPC:
         return G_matrix, H_matrix
 
     def dec_src_bits(self, bp_output):
-        return bp_output[:,0:self.K]
-
+        return bp_output[:, 0:self.K]
