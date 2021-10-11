@@ -13,7 +13,7 @@ class GetMatrixForBPNet:
     '''
 
     def __init__(self, test_H, loc_nzero_row):
-        print("Construct the Matrics H class!\n")
+        print("Construct the Matrics H class!\n", flush=True)
         self.H = test_H
         self.m, self.n = np.shape(test_H)
         self.H_sum_line = np.sum(self.H, axis=0)
@@ -57,7 +57,7 @@ class GetMatrixForBPNet:
             for j in range(0, self.H_sum_line[i]):
                 H_sum_by_V_to_C[count + j, count + j] = 0
             count = count + self.H_sum_line[i]
-        print("return Matrics V-C successfully!")
+        print("return Matrics V-C successfully!", flush=True)
 
         return H_x_to_xe0, np.matmul(H_sum_by_V_to_C, map_H_row_to_line), np.matmul(H_xe_last_to_y, map_H_row_to_line)
 
@@ -84,7 +84,7 @@ class GetMatrixForBPNet:
             for j in range(0, self.H_sum_row[i]):
                 H_sum_by_C_to_V[count + j, count + j] = 0
             count = count + self.H_sum_row[i]
-        print("return Matrics C-V successfully!")
+        print("return Matrics C-V successfully!", flush=True)
 
         return np.matmul(H_sum_by_C_to_V, map_H_line_to_row)
 

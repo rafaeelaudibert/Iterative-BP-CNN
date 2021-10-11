@@ -10,7 +10,7 @@ tf.disable_v2_behavior()
 
 class TrainingDataIO:
     def __init__(self, feature_filename, label_filename, total_trainig_samples, feature_length, label_length):
-        print("Construct the data IO class for training!")
+        print("Construct the data IO class for training!", flush=True)
         self.fin_label = open(label_filename, "rb")
         self.fin_feature = open(feature_filename, "rb")
         self.total_trainig_samples = total_trainig_samples
@@ -18,7 +18,7 @@ class TrainingDataIO:
         self.label_length = label_length
 
     def __del__(self):
-        print("Delete the data IO class!")
+        print("Delete the data IO class!", flush=True)
         self.fin_feature.close()
         self.fin_label.close()
 
@@ -34,7 +34,8 @@ class TrainingDataIO:
         features = np.zeros((0))
         labels = np.zeros((0))
         if mini_batch_size > self.total_trainig_samples:
-            print("Mini batch size should not be larger than total sample size!")
+            print(
+                "Mini batch size should not be larger than total sample size!", flush=True)
         self.fin_feature.seek((self.feature_length * 4) * (sample_id //
                               factor_of_start_pos*factor_of_start_pos), 0)  # float32 = 4 bytes = 32 bits
         self.fin_label.seek((self.label_length * 4) *
@@ -84,7 +85,7 @@ class TestDataIO:
 
     def load_batch_for_test(self, batch_size):
         if batch_size > self.test_sample_num:
-            print("Batch size should not be larger than total sample size!")
+            print("Batch size should not be larger than total sample size!", flush=True)
         if np.size(self.all_features) == 0:
             self.all_features = np.fromfile(
                 self.fin_feature, np.float32, self.feature_length * self.test_sample_num)

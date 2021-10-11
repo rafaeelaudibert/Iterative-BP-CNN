@@ -18,13 +18,13 @@ import Iterative_BP_CNN as ibd
 import ConvNet
 import DataIO
 
-print("MAIN FILE AFTER EVERY IMPORT\n")
+print("MAIN FILE AFTER EVERY IMPORT\n", flush=True)
 
 # address configurations
 top_config = Configuration.TopConfig()
 top_config.parse_cmd_line(sys.argv)
 
-print("After parsing cmd line\n")
+print("After parsing cmd line\n", flush=True)
 
 train_config = Configuration.TrainingConfig(top_config)
 net_config = Configuration.NetConfig(top_config)
@@ -43,7 +43,7 @@ if top_config.function == 'GenData':
     ibd.generate_noise_samples(code, top_config, net_config, train_config, top_config.BP_iter_nums_gen_data,
                                top_config.currently_trained_net_id, 'Test', noise_io, top_config.model_id)
 elif top_config.function == 'Train':
-    print("INSIDE TRAIN!\n")
+    print("INSIDE TRAIN!\n", flush=True)
     net_id = top_config.currently_trained_net_id
     conv_net = ConvNet.ConvNet(net_config, train_config, net_id)
     conv_net.train_network(top_config.model_id)
