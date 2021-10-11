@@ -1,5 +1,5 @@
 import numpy as np
-import tqdm as tqdm
+from tqdm import tqdm
 
 # We are using TF V1 behavior by default here
 # import tensorflow as tf
