@@ -205,7 +205,7 @@ def simulation_colored_noise(linear_code, top_config, net_config, simutimes_rang
     fout_ber.close()
     end = datetime.datetime.now()
     print('Time: %ds' % (end-start).seconds)
-    print("end\n")
+    print("end\n", flush=True)
     sess.close()
     print('Close the tf session!')
 
@@ -299,7 +299,7 @@ def generate_noise_samples(linear_code, top_config, net_config, train_config, bp
     end = datetime.datetime.now()
 
     print("Time: %ds" % (end - start).seconds)
-    print("end")
+    print("end", flush=True)
 
 
 # calculate the resdual noise power or its empirical distribution
@@ -403,5 +403,5 @@ def analyze_residual_noise(linear_code, top_config, net_config, simutimes, batch
     fout_loss.close()
     end = datetime.datetime.now()
     print('Time: %ds' % (end-start).seconds)
-    print("end\n")
+    print("end\n", flush=True)
     sess.close()
