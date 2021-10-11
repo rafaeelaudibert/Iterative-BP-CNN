@@ -4,8 +4,8 @@ import os
 import datetime
 from tqdm import tqdm
 
-# We are using TF V1 behavior here
-# import tensorflow as tf
+# We are using TF V1 behavior by default here
+import tensorflow as tf2
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
@@ -52,11 +52,11 @@ class ConvNet:
             out_channels = self.net_config.feature_map_nums[layer]
 
             if built_for_training:
-                # xavier initialization for training
-                self.conv_filter[layer] = tf.get_variable(name=self.conv_filter_name[layer], shape=[self.net_config.filter_sizes[layer], 1, in_channels, out_channels],
-                                                          dtype=tf.float32, initializer=tf.contrib.layers.xavier_initializer())
-                self.bias[layer] = tf.get_variable(name=self.bias_name[layer], shape=[out_channels],
-                                                   dtype=tf.float32, initializer=tf.contrib.layers.xavier_initializer())
+                # xavier/glorot initialization for training
+                self.conv_filter[layer] = tf.get_variable(name=self.conv_filter_name[layer], shape=[
+                                                          self.net_config.filter_sizes[layer], 1, in_channels, out_channels], dtype=tf.float32, initializer=tf2.initializers.GlorotUniform())
+                self.bias[layer] = tf.get_variable(name=self.bias_name[layer], shape=[
+                                                   out_channels], dtype=tf.float32, initializer=tf2.initializers.GlorotUniform())
                 self.best_conv_filter[layer] = tf.Variable(tf.ones(
                     [self.net_config.filter_sizes[layer], 1, in_channels, out_channels], tf.float32), dtype=tf.float32)
                 self.best_bias[layer] = tf.Variable(

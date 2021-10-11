@@ -1,9 +1,11 @@
 import numpy as np
 
-# TopConfig defines some top configurations. Other configurations are set based on TopConfig.
-
 
 class TopConfig:
+    '''
+    TopConfig defines some top configurations. Other configurations are set based on TopConfig.
+    '''
+
     def __init__(self):
         # select functions to be executed, including generating data(GenData), training(Train), and simulation(Simulation)
         self.function = 'Train'

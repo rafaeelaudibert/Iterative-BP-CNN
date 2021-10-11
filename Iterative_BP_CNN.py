@@ -10,7 +10,7 @@ import LinearBlkCodes as lbc
 import DataIO
 from tqdm import tqdm
 
-# We are using TF V1 behavior here
+# We are using TF V1 behavior by default here
 # import tensorflow as tf
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
