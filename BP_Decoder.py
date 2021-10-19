@@ -84,9 +84,9 @@ class BP_NetDecoder:
         loc_nzero_row = np.array([ii, jj])
         self.num_all_edges = np.size(loc_nzero_row[1, :])
 
-        gm1 = GetMatrixForBPNet(H[:, :], loc_nzero_row)
-        self.H_sumC_to_V = gm1.get_Matrix_CV()
-        self.H_x_to_xe0, self.H_sumV_to_C, self.H_xe_v_sumc_to_y = gm1.get_Matrix_VC()
+        BPNetMatrix = GetMatrixForBPNet(H[:, :], loc_nzero_row)
+        self.H_sumC_to_V = BPNetMatrix.get_Matrix_CV()
+        self.H_x_to_xe0, self.H_sumV_to_C, self.H_xe_v_sumc_to_y = BPNetMatrix.get_Matrix_VC()
 
         self.batch_size = batch_size
         self.llr_placeholder = tf.placeholder(tf.float32, [batch_size, self.v_node_num])

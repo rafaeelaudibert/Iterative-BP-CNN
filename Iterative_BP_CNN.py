@@ -64,6 +64,7 @@ def denoising_and_calc_LLR_epdf(prob, y_receive, output_pre_decoder, net_in, net
     # estimate noise with cnn denoiser
     noise_before_cnn = y_receive - (output_pre_decoder * (-2) + 1)
     noise_after_cnn = sess.run(net_out, feed_dict={net_in: noise_before_cnn})
+
     # calculate the LLR for next BP decoding
     s_mod_plus_res_noise = y_receive - noise_after_cnn
     LLR = calc_LLR_epdf(prob, s_mod_plus_res_noise)

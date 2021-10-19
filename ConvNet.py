@@ -15,6 +15,7 @@ tf.disable_v2_behavior()
 
 class ConvNet:
     def __init__(self, net_config_in, train_config_in, net_id):
+        self.net_id = net_id
         self.net_config = net_config_in
         self.train_config = train_config_in
         self.conv_filter_name = {}
@@ -25,7 +26,6 @@ class ConvNet:
         self.best_bias = {}
         self.assign_best_conv_filter = {}
         self.assign_best_bias = {}
-        self.net_id = net_id
         self.res_noise_power_dict = {}
         self.res_noise_pdf_dict = {}
 
@@ -87,15 +87,11 @@ class ConvNet:
                     tf.random_normal([out_channels], 0, 1, tf.float32), dtype=tf.float32, name=self.bias_name[layer]
                 )
 
-            if layer == self.net_config["total_layers"] - 1:
-                layer_output[layer] = (
-                    tf.nn.conv2d(x_input, self.conv_filter[layer], [1, 1, 1, 1], "SAME") + self.bias[layer]
-                )
-            else:
-                # Activation Function
-                layer_output[layer] = tf.nn.relu(
-                    tf.nn.conv2d(x_input, self.conv_filter[layer], [1, 1, 1, 1], "SAME") + self.bias[layer]
-                )
+            layer_output[layer] = (
+                tf.nn.conv2d(x_input, self.conv_filter[layer], [1, 1, 1, 1], "SAME") + self.bias[layer]
+            )
+            if layer != self.net_config["total_layers"] - 1:  # Activation function on every but the last layer
+                layer_output[layer] = tf.nn.relu(layer_output[layer])
 
         y_out = layer_output[self.net_config["total_layers"] - 1]
         y_out = tf.reshape(y_out, (-1, self.net_config["label_length"]))
@@ -259,7 +255,7 @@ class ConvNet:
         self.restore_network_with_model_id(sess, self.net_config["restore_layers"], model_id)
 
         # calculate the loss before training and assign it to min_loss
-        min_loss, avg_org_loss = self.test_network_online(
+        min_loss, _avg_org_loss = self.test_network_online(
             dataio_test, x_in, y_label, orig_loss_for_test, test_loss, True, sess
         )
 
