@@ -1,5 +1,5 @@
 import numpy as np
-from NeuralBPNN.utils import load_code, syndrome
+from LinearBlkCodes import BCH
 import os
 import NeuralBPNN.constants as constants
 
@@ -38,6 +38,21 @@ else:
     print("Scaling test input by 2/sigma")
 
 
+# compute the "soft syndrome"
+def syndrome(soft_output, code):
+    soft_syndrome = []
+    for c in range(0, code.m):  # for each check node
+        variable_nodes = [v for v in range(0, code.n) if code.H[c, v] == 1]
+
+        gather = tf.gather(soft_output, variable_nodes)
+        prod_val = tf.reduce_prod(tf.sign(gather), 0)
+        min_val = tf.reduce_min(tf.abs(gather), 0)
+        soft_syndrome.append(prod_val * min_val)
+
+    soft_syndrome = tf.stack(soft_syndrome)
+    return soft_syndrome
+
+
 class Decoder:
     belief_propagation = None
 
@@ -59,7 +74,7 @@ class Decoder:
 
         if constants.ALL_ZEROS_CODEWORD_TESTING:
             G_filename = ""
-        self.code = load_code(H_filename, G_filename)
+        self.code = BCH(H_filename, G_filename)
 
         self.L = L
         self.num_iterations = num_iterations
