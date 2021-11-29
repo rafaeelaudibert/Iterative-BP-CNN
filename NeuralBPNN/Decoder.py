@@ -39,6 +39,8 @@ else:
 
 
 class Decoder:
+    belief_propagation = None
+
     def __init__(
         self,
         H_filename,
@@ -247,6 +249,10 @@ class Decoder:
         )
 
     def configure_decoder(self):
+        init = tf.global_variables_initializer()
+        self.sess = tf.Session()  # open a session
+        self.sess.run(init)
+
         self.global_step = tf.Variable(0, trainable=False)
         self.starter_learning_rate = 0.01
         self.learning_rate = self.starter_learning_rate  # provided_decoder_type="normal", "FNNMS", "FNOMS", ...
@@ -303,3 +309,18 @@ class Decoder:
             # self.relaxation_factors = tf.Variable(tf.truncated_normal([self.num_edges],dtype=tf.float32,stddev=1.0))
             # R = tf.tile(tf.reshape(tf.sigmoid(self.relaxation_factors),[-1,1]),[1,batch_size])
             # print "multiple relaxation factors"
+
+    def restore(self, save_path: str):
+        saver = tf.train.Saver()
+        saver.restore(self.sess, save_path)
+
+    def decode(self, soft_input, codewords):
+        if not self.belief_propagation:
+            self.belief_propagation = self.belief_propagation_op(
+                soft_input=self.tf_train_dataset, labels=self.tf_train_labels
+            )
+
+        feed_dict = {self.tf_train_dataset: soft_input, self.tf_train_labels: codewords}
+        soft_outputs = self.sess.run([self.belief_propagation], feed_dict=feed_dict)
+        soft_output = np.array(soft_outputs[0][1])
+        return (soft_output < 0).astype(int)

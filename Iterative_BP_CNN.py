@@ -4,11 +4,13 @@
 
 import numpy as np
 import datetime
-import BP_Decoder
 import ConvNet
 import LinearBlkCodes as lbc
 import DataIO
 from tqdm import tqdm
+import NeuralBPNN.Decoder as NeuralBPNN
+
+# import BP_Decoder # Replaced by NeuralBPNN.Decoder as of now
 
 # We are using TF V1 behavior by default here
 # import tensorflow as tf
@@ -91,7 +93,10 @@ def simulation_colored_noise(linear_code, top_config, net_config, simutimes_rang
     if np.size(bp_iter_num) != denoising_net_num + 1:
         print("Error: the length of bp_iter_num is not correct!")
         exit(0)
-    bp_decoder = BP_Decoder.BP_NetDecoder(H_matrix, batch_size)
+
+    # We are using a custom-trained NeuralBPNN
+    bp_decoder = NeuralBPNN.Decoder("NeuralBPNN/codes/BCH_63_45.alist", "NeuralBPNN/codes/BCH_63_45.gmat")
+    bp_decoder.restore("NeuralBPNN/model/BCH")
 
     # build denoising network
     conv_net = {}
@@ -168,7 +173,7 @@ def simulation_colored_noise(linear_code, top_config, net_config, simutimes_rang
 
             for iter in tqdm(range(0, denoising_net_num + 1), desc="Denoising net num"):
                 # BP decoding
-                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), bp_iter_num[iter])
+                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), x_bits)
 
                 if iter < denoising_net_num:
                     if top_config.update_llr_with_epdf:
@@ -234,7 +239,10 @@ def generate_noise_samples(
     if np.size(bp_iter_num) != net_id_data_for + 1:
         print("Error: the length of bp_iter_num is not correct!")
         exit(0)
-    bp_decoder = BP_Decoder.BP_NetDecoder(H_matrix, batch_size_each_SNR)
+
+    # We are using a custom-trained NeuralBPNN
+    bp_decoder = NeuralBPNN.Decoder("NeuralBPNN/codes/BCH_63_45.alist", "NeuralBPNN/codes/BCH_63_45.gmat")
+    bp_decoder.restore("NeuralBPNN/model/BCH")
 
     conv_net = {}
     denoise_net_in = {}
@@ -270,7 +278,7 @@ def generate_noise_samples(
             )
 
             for iter in tqdm(range(0, net_id_data_for + 1), desc="Net ID data for"):
-                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), bp_iter_num[iter])
+                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), x_bits)
 
                 if iter != net_id_data_for:
                     if top_config.update_llr_with_epdf:
@@ -323,7 +331,10 @@ def analyze_residual_noise(linear_code, top_config, net_config, simutimes, batch
     if np.size(bp_iter_num) != net_id_tested + 1:
         print("Error: the length of bp_iter_num is not correct!")
         exit(0)
-    bp_decoder = BP_Decoder.BP_NetDecoder(H_matrix, batch_size)
+
+    # We are using a custom-trained NeuralBPNN
+    bp_decoder = NeuralBPNN.Decoder("NeuralBPNN/codes/BCH_63_45.alist", "NeuralBPNN/codes/BCH_63_45.gmat")
+    bp_decoder.restore("NeuralBPNN/model/BCH")
 
     # build denoising network
     conv_net = {}
