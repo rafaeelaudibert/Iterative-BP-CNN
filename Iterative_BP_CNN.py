@@ -9,6 +9,7 @@ import ConvNet
 import LinearBlkCodes as lbc
 import DataIO
 from tqdm import tqdm
+import BPNN_Decoder.Decoder as BPNN_Decoder
 
 # We are using TF V1 behavior by default here
 # import tensorflow as tf
@@ -105,7 +106,9 @@ def simulation_colored_noise(
     if np.size(bp_iter_num) != denoising_net_num + 1:
         print("Error: the length of bp_iter_num is not correct!")
         exit(0)
-    bp_decoder = BP_Decoder.BP_NetDecoder(H_matrix, batch_size)
+
+    bp_decoder = BPNN_Decoder.Decoder("BPNN_Decoder/codes/BCH_63_45.alist", "BPNN_Decoder/codes/BCH_63_45.gmat")
+    bp_decoder.restore("BPNN_Decoder/model/BCH")
 
     # build denoising network
     conv_net = {}
@@ -179,7 +182,7 @@ def simulation_colored_noise(
 
                 for iter in tqdm(range(0, denoising_net_num + 1), desc="Denoising net num"):
                     # BP decoding
-                    u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), bp_iter_num[iter])
+                    u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), x_bits)
 
                     if iter < denoising_net_num:
                         if update_llr_with_epdf:
@@ -336,11 +339,12 @@ def analyze_residual_noise(
         max_batches += 1
 
     # build BP decoding network
-    # TODO RAFA: Create it from BPNN passing the required hardcoded parameters
     if np.size(bp_iter_num) != net_id_tested + 1:
         print("Error: the length of bp_iter_num is not correct!")
         exit(0)
-    bp_decoder = BP_Decoder.BP_NetDecoder(H_matrix, batch_size)
+
+    bp_decoder = BPNN_Decoder.Decoder("BPNN_Decoder/codes/BCH_63_45.alist", "BPNN_Decoder/codes/BCH_63_45.gmat")
+    bp_decoder.restore("BPNN_Decoder/model/BCH")
 
     # build denoising network
     conv_net = {}
@@ -381,10 +385,7 @@ def analyze_residual_noise(
 
             for iter in tqdm(range(0, net_id_tested + 1), desc="Net ID tested"):
                 # BP decoding
-                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), bp_iter_num[iter])
-                # RAFA: Has value between [0, 1], then flips it, and converts to [-1, 1], i.e. 1 -> -1, 0 -> 1.
-                # TODO RAFA: Change this so that we are taking into consideration what BPNN should actually be doing with the noise
-                # TODO RAFA: Check if we are actually returning the same thing as we want, because we need LLRs without noise here, and not a result per se
+                u_BP_decoded = bp_decoder.decode(LLR.astype(np.float32), x_bits)
                 noise_before_cnn = y_receive - (u_BP_decoded * (-2) + 1)
                 noise_after_cnn = sess.run(denoise_net_out[iter], feed_dict={denoise_net_in[iter]: noise_before_cnn})
                 s_mod_plus_res_noise = y_receive - noise_after_cnn
