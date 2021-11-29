@@ -99,7 +99,6 @@ def main(
     blk_len = N
 
     correlation_file = f"./noise/cov_1_2_corr_para{correlation:.2f}.dat"
-    correlation_file_simu = correlation_file
 
     # BP decoding
     BP_iter_nums_gen_data = np.array([5])  # Number of iterations

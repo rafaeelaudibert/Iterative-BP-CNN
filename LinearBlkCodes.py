@@ -1,4 +1,5 @@
 import numpy as np
+from BPNN_Decoder.utils import load_code
 
 
 def encode_and_transmission(G_matrix, SNR, batch_size, noise_io, rng=0):
@@ -25,7 +26,20 @@ def encode_and_transmission(G_matrix, SNR, batch_size, noise_io, rng=0):
     return x_bits, u_coded_bits, s_mod, ch_noise, y_receive, LLRs
 
 
-class LDPC:
+class Code:
+    """
+    Base Code class which simply handles that we need to have a K,
+    which is 0 by default, trimming the first K bits as the output of
+    the code
+    """
+
+    K: int = 0
+
+    def dec_src_bits(self, output):
+        return output[:, 0 : self.K]
+
+
+class LDPC(Code):
     def __init__(self, N, K, file_G, file_H):
         self.N = N
         self.K = K
@@ -40,5 +54,11 @@ class LDPC:
         H_matrix[H_matrix_row_col[:, 0], H_matrix_row_col[:, 1]] = 1
         return G_matrix, H_matrix
 
-    def dec_src_bits(self, bp_output):
-        return bp_output[:, 0 : self.K]
+
+class BCH(Code):
+    def __init__(self, H_filename, G_filename):
+        self.code = load_code(H_filename, G_filename)
+        self.N = self.code.N
+        self.K = self.code.K
+        self.G_matrix = self.code.G
+        self.H_matrix = self.code.H
