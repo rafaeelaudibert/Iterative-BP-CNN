@@ -12,6 +12,6 @@ module load anaconda3/latest
 . $ANACONDA_HOME/etc/profile.d/conda.sh
 conda activate iterative-bp-cnn
 
-python3 ~/Iterative-BP-CNN/main.py -Func Train
+python3 ~/Iterative-BP-CNN/main.py -Func Simulation
 
 conda deactivate

@@ -2,3 +2,5 @@ __pycache__/
 noise/*.dat
 data/**/*.dat
 *.txt
+**/model/*
+!.gitkeep
